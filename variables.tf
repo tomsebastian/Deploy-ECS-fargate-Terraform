@@ -26,3 +26,4 @@ variable "az_count" {
   description = "Number of AZs to cover in the given AWS region"
   default     = "3"
 }
+
