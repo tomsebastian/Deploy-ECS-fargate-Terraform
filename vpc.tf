@@ -34,7 +34,7 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-
+/*
 resource "aws_route" "public-route" {
   route_table_id         = aws_vpc.main.main_route_table_id
   destination_cidr_block = "0.0.0.0/0"
@@ -42,9 +42,38 @@ resource "aws_route" "public-route" {
   
 }
 
+resource "aws_route_table" "public-route-table" {
+  count  = var.az_count
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id 
+  }
+  tags = {
+    Name = "${var.stack}-Public-Route-Table-${count.index + 1}"
+  }
+}
+
+*/
+
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name = "${var.stack}-public-route table"
+    
+  }
+}
 
 resource "aws_route_table_association" "route-association-public" {
   count          = var.az_count
   subnet_id      = element(aws_subnet.public.*.id, count.index)
-  route_table_id = aws_vpc.main.main_route_table_id
+  route_table_id = aws_route_table.public.id
 }

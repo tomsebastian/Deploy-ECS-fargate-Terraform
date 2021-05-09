@@ -2,19 +2,6 @@ resource "aws_ecs_cluster" "ecs-cluster" {
   name = "${var.stack}-Cluster"
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# ECS TASK DEFINITION USING FARGATE
-# ---------------------------------------------------------------------------------------------------------------------
-
-# resource "aws_ecs_task_definition" "petclinic_taskdef" {
-#   family                = "petclinic"
-#   container_definitions = "${data.template_file.petclinic-container.rendered}"
-
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
-
 
 resource "aws_ecs_task_definition" "task-def" {
   family                   = "${var.stack}-family"
@@ -24,8 +11,7 @@ resource "aws_ecs_task_definition" "task-def" {
   memory                   = var.fargate_memory
   //task_role_arn            = "${aws_iam_role.ecs-tasks-service-role.arn}"
   execution_role_arn       = aws_iam_role.tasks-service-role.arn
-  # container_definitions = data.template_file.petclinic-container.rendered
-  # container_definitions = file("petclinic.json")
+  
 
   container_definitions = <<DEFINITION
 [
@@ -63,10 +49,12 @@ resource "aws_ecs_service" "service" {
   task_definition = aws_ecs_task_definition.task-def.arn
   desired_count   = var.task_count
   launch_type     = "FARGATE"
+  depends_on = [aws_alb_listener.alb-listener,]
 
   network_configuration {
     security_groups = [aws_security_group.task-sg.id]
     subnets         = aws_subnet.public.*.id
+    assign_public_ip = true
   }
 
   load_balancer {
@@ -75,8 +63,9 @@ resource "aws_ecs_service" "service" {
     container_port   = var.container_port
   }
 
-  depends_on = [
-    aws_alb_listener.alb-listener,
-  ]
+  
 }
 
+resource "aws_cloudwatch_log_group" "cw-lgrp" {
+  name = "ecs/${var.stack}"
+}
