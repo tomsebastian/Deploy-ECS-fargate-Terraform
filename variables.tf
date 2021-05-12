@@ -7,6 +7,11 @@ variable "aws_profile" {
   description = "AWS profile"
 }
 
+variable "account_id" {
+  description = "account_id"
+}
+
+
 variable "stack" {
   description = "Name of the stack."
   default     = "test-ecs-terraform"
@@ -47,9 +52,16 @@ variable "fargate_memory" {
   default     = "2048"
 }
 
+
+variable "source_repo_branch" {
+    description = "Source repo branch"
+    type = string
+}
+
 #ecs cloudwatch
 
 variable "cw_log_stream" {
   description = "CloudWatch Log Stream"
   default     = "ecs"
 }
+
