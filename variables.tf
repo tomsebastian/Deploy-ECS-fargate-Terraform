@@ -65,3 +65,23 @@ variable "cw_log_stream" {
   default     = "ecs"
 }
 
+
+variable "db_instance_type" {
+  description = "RDS instance type"
+  default     = "db.r4.2xlarge"
+}
+
+variable "db_name" {
+  description = "RDS DB name"
+  default     = "database"
+}
+
+variable "db_user" {
+  description = "RDS DB username"
+  default     = "root"
+}
+
+variable "db_password" {
+  description = "RDS DB password"
+  default = "password"
+}
