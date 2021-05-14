@@ -73,7 +73,7 @@ variable "db_instance_type" {
 
 variable "db_name" {
   description = "RDS DB name"
-  default     = "database"
+  default     = "db_name"
 }
 
 variable "db_user" {
