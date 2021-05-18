@@ -3,6 +3,7 @@ resource "aws_iam_user" "ecr-user" {
   
 }
 
+/*
 data "aws_iam_policy_document" "example" {
     statement  {
             sid = "VisualEditor0"
@@ -31,7 +32,7 @@ data "aws_iam_policy_document" "example" {
   
   }
 
-/*
+
 resource "aws_iam_user_policy" "ecr_policy" {
   name = "ecr-policy"
   user = "${aws_iam_user.ecr-user.name}"
@@ -42,7 +43,7 @@ resource "aws_iam_user_policy" "ecr_policy" {
 */
 
 resource "aws_iam_policy" "ecr-policy" {
-  name        = "${var.stack}-ecr-policy"
+  name        = "${var.stack}-${var.environment}-ecr-policy"
   description = "ecr policy"
 
   policy = <<EOF
@@ -63,8 +64,8 @@ resource "aws_iam_policy" "ecr-policy" {
                 "ecr:PutImageScanningConfiguration"
             ],
             "Resource": [
-                "arn:aws:ecr:us-east-1:862567339542:repository/${var.stack}-image",
-                "arn:aws:ecr:us-east-1:862567339542:repository/${var.stack}-base-image"
+                "arn:aws:ecr:${var.aws_region}:${var.account_id}:repository/${var.stack}-${var.environment}-image",
+                "arn:aws:ecr:${var.aws_region}:${var.account_id}:repository/${var.stack}-${var.environment}-base-image"
             ]
         },
         {

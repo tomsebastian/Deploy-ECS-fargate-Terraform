@@ -1,5 +1,5 @@
 resource "aws_security_group" "alb-sg" {
-  name        = "${var.stack}-alb-sg"
+  name        = "${var.stack}-${var.environment}-alb-sg"
   description = "ALB Security Group"
   vpc_id      = aws_vpc.main.id
 
@@ -17,14 +17,14 @@ resource "aws_security_group" "alb-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "${var.stack}-alb-sg"
+    Name = "${var.stack}-${var.environment}-alb-sg"
   }
 }
 
 # SECURITY GROUP FOR ECS TASKS
 
 resource "aws_security_group" "task-sg" {
-  name        = "${var.stack}-task-sg"
+  name        = "${var.stack}-${var.environment}-task-sg"
   description = "Allow inbound access to ECS tasks from the ALB only"
   vpc_id      = aws_vpc.main.id
 
@@ -42,13 +42,13 @@ resource "aws_security_group" "task-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "${var.stack}-task-sg"
+    Name = "${var.stack}-${var.environment}-task-sg"
   }
 }
 
 
 resource "aws_security_group" "db-sg" {
-  name        = "${var.stack}-db-sg"
+  name        = "${var.stack}-${var.environment}-db-sg"
   description = "Access to the RDS instances from the VPC"
   vpc_id      = aws_vpc.main.id
 
@@ -74,6 +74,6 @@ resource "aws_security_group" "db-sg" {
   }
 
   tags = {
-    Name = "${var.stack}-db-sg"
+    Name = "${var.stack}-${var.environment}-db-sg"
   }
 }

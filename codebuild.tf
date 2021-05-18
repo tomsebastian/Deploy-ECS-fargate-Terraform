@@ -4,7 +4,7 @@ data "aws_caller_identity" "current" {}
 # Codebuild role
 
 resource "aws_iam_role" "codebuild_role" {
-  name = "${var.stack}-codebuild-role"
+  name = "${var.stack}-${var.environment}-codebuild-role"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -23,7 +23,7 @@ EOF
 }
 
 resource "aws_iam_policy" "codebuild_policy" {
-  name        = "${var.stack}-codebuild-policy"
+  name        = "${var.stack}-${var.environment}-codebuild-policy"
   description = "Policy to allow codebuild to execute build spec"
   policy = <<EOF
 {
@@ -52,16 +52,10 @@ resource "aws_iam_policy" "codebuild_policy" {
         "ecr:CompleteLayerUpload"
       ],
       "Effect": "Allow",
-      "Resource": "${aws_ecr_repository.image_repo.arn}"
-    },
-    {
-      "Action": [
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "ecr:BatchCheckLayerAvailability"
-      ],
-      "Effect": "Allow",
-      "Resource": "${aws_ecr_repository.image_repo.arn}"
+      "Resource": [
+                "${aws_ecr_repository.image_repo.arn}",
+                "${aws_ecr_repository.base_image.arn}"
+            ]
     }
   ]
 }
@@ -76,13 +70,14 @@ resource "aws_iam_role_policy_attachment" "codebuild-attach" {
   policy_arn = aws_iam_policy.codebuild_policy.arn
 }
 
+/*
 resource "aws_iam_role_policy_attachment" "codebuild-ecr-attach" {
   role       = aws_iam_role.codebuild_role.name
   #policy_arn = aws_iam_policy.codebuild_policy.arn aws_iam_policy.ecr-policy.arn
   #policy_arn = "${var.iam_policy_arn[count.index]}"
   policy_arn = aws_iam_policy.ecr-policy.arn
 }
-
+*/
 
 # Codebuild project
 
@@ -91,7 +86,7 @@ resource "aws_codebuild_project" "codebuild" {
     aws_codecommit_repository.source_repo,
     aws_ecr_repository.image_repo
   ]
-  name          = "codebuild-${var.stack}-repo-${var.source_repo_branch}"
+  name          = "codebuild-${var.stack}-${var.environment}-repo-${var.source_repo_branch}"
   service_role  = aws_iam_role.codebuild_role.arn
   artifacts {
     type = "CODEPIPELINE"
@@ -116,7 +111,7 @@ resource "aws_codebuild_project" "codebuild" {
     }
     environment_variable {
       name = "IMAGE_REPO_NAME"
-      value = "${var.stack}-image"
+      value = "${var.stack}-${var.environment}-image"
     }
     environment_variable {
       name = "IMAGE_TAG"
@@ -124,7 +119,7 @@ resource "aws_codebuild_project" "codebuild" {
     }
     environment_variable {
       name = "CONTAINER_NAME"
-      value = "${var.stack}-container"
+      value = "${var.stack}-${var.environment}-container"
     }
   }
   source {
@@ -157,5 +152,10 @@ phases:
 artifacts:
   files: imagedefinitions.json
 BUILDSPEC
+  }
+  tags = {
+    Name = "${var.stack}-${var.environment}-"
+    Environment = "${var.environment}"
+    Billing = "${var.billing_id}"
   }
 }        

@@ -1,5 +1,10 @@
 resource "aws_codecommit_repository" "source_repo" {
-  repository_name = "${var.stack}-repo"
+  repository_name = "${var.stack}-${var.environment}-repo"
+  tags = {
+    Name = "${var.stack}-${var.environment}-codecommit-repo"
+    Environment = "${var.environment}"
+    Billing = "${var.billing_id}"
+  }
 }
 
 resource "aws_iam_role" "trigger_role" {
@@ -67,7 +72,7 @@ resource "aws_cloudwatch_event_target" "target_pipeline" {
   rule      = aws_cloudwatch_event_rule.trigger_rule.name
   arn       = aws_codepipeline.pipeline.arn
   role_arn  = aws_iam_role.trigger_role.arn
-  target_id = "${var.stack}-repo-${var.source_repo_branch}-pipeline"
+  target_id = "${var.stack}-${var.environment}-repo-${var.source_repo_branch}-pipeline"
 }
 
 # Outputs

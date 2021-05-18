@@ -1,12 +1,12 @@
 resource "aws_alb" "alb" {
-  name            = "${var.stack}-alb"
+  name            = "${var.stack}-${var.environment}-alb"
   subnets         = aws_subnet.public.*.id
   security_groups = [aws_security_group.alb-sg.id]
 }
 
 
 resource "aws_alb_target_group" "trgp" {
-  name        = "${var.stack}-tgrp"
+  name        = "${var.stack}-${var.environment}-tgrp"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id

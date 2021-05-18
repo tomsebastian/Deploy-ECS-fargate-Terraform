@@ -81,7 +81,7 @@ resource "aws_codepipeline" "pipeline" {
     aws_codebuild_project.codebuild,
     aws_codecommit_repository.source_repo
   ]
-  name     = "${var.stack}-repo-${var.source_repo_branch}-Pipeline"
+  name     = "${var.stack}-${var.environment}-repo-${var.source_repo_branch}-Pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
   artifact_store {
     location = aws_s3_bucket.artifact_bucket.bucket
@@ -99,7 +99,7 @@ resource "aws_codepipeline" "pipeline" {
       output_artifacts = ["SourceOutput"]
       run_order        = 1
       configuration = {
-        RepositoryName       = "${var.stack}-repo"
+        RepositoryName       = "${var.stack}-${var.environment}-repo"
         BranchName           = var.source_repo_branch
         PollForSourceChanges = "false"
       }
@@ -134,12 +134,17 @@ resource "aws_codepipeline" "pipeline" {
       run_order       = 1
       input_artifacts = ["BuildOutput"]
       configuration = {
-        ClusterName       = "${var.stack}-Cluster"
-        ServiceName       = "${var.stack}-Service"
+        ClusterName       = "${var.stack}-${var.environment}-Cluster"
+        ServiceName       = "${var.stack}-${var.environment}-Service"
         FileName          = "imagedefinitions.json"
         DeploymentTimeout = "15"
       }
     }
+  }
+  tags = {
+    Name = "${var.stack}-${var.environment}-codedeploy"
+    Environment = "${var.environment}"
+    Billing = "${var.billing_id}"
   }
 }
 

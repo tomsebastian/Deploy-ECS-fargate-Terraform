@@ -11,20 +11,21 @@ variable "account_id" {
   description = "account_id"
 }
 
+variable "billing_id" {
+  description = "Billing Tag"
+}
 
 variable "stack" {
   description = "Name of the stack."
-  default     = "test-ecs-terraform"
 }
 
 variable environment {
   description = "Name of environment"
-  default     = "testing"
 }
 
 variable "vpc_cidr" {
   description = "CIDR for the VPC"
-  default     = "10.1.0.0/16"
+  
 }
 
 variable "az_count" {

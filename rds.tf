@@ -6,7 +6,7 @@ resource "aws_db_subnet_group" "db-subnet-grp" {
 
 
 resource "aws_db_instance" "db" {
-  identifier        = "${var.stack}-rds"
+  identifier        = "${var.stack}-${var.environment}-rds"
   allocated_storage = 5
   engine            = "mysql"
   engine_version    = "5.7"
@@ -24,7 +24,9 @@ resource "aws_db_instance" "db" {
   skip_final_snapshot    = true
 
   tags = {
-    Name = "${var.stack}-db"
+    Name = "${var.stack}-${var.environment}-rds"
+    Environment = "${var.environment}"
+    Billing = "${var.billing_id}"
   }
 }
 

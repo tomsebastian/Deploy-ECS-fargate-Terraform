@@ -1,10 +1,15 @@
 resource "aws_ecs_cluster" "ecs-cluster" {
-  name = "${var.stack}-Cluster"
+  name = "${var.stack}-${var.environment}-Cluster"
+  tags = {
+    Name = "${var.stack}-${var.environment}-cluster"
+    Environment = "${var.environment}"
+    Billing = "${var.billing_id}"
+  }
 }
 
 
 resource "aws_ecs_task_definition" "task-def" {
-  family                   = "${var.stack}-family"
+  family                   = "${var.stack}-${var.environment}-family"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.fargate_cpu
@@ -19,12 +24,12 @@ resource "aws_ecs_task_definition" "task-def" {
     "cpu": ${var.fargate_cpu},
     "image": "${aws_ecr_repository.image_repo.repository_url}",
     "memory": ${var.fargate_memory},
-    "name": "${var.stack}-container",
+    "name": "${var.stack}-${var.environment}-container",
     "networkMode": "awsvpc",
     "logConfiguration": {
             "logDriver": "awslogs",
             "options": {
-                "awslogs-group": "ecs/${var.stack}",
+                "awslogs-group": "ecs/${var.stack}-${var.environment}",
                 "awslogs-region": "${var.aws_region}",
                 "awslogs-stream-prefix": "${var.cw_log_stream}"
             }
@@ -39,12 +44,17 @@ resource "aws_ecs_task_definition" "task-def" {
   }
 ]
 DEFINITION
+tags = {
+    Name = "${var.stack}-${var.environment}-task-def"
+    Environment = "${var.environment}"
+    Billing = "${var.billing_id}"
+  }
 }
 
 #ecs service
 
 resource "aws_ecs_service" "service" {
-  name            = "${var.stack}-Service"
+  name            = "${var.stack}-${var.environment}-Service"
   cluster         = aws_ecs_cluster.ecs-cluster.id
   task_definition = aws_ecs_task_definition.task-def.arn
   desired_count   = var.task_count
@@ -59,13 +69,18 @@ resource "aws_ecs_service" "service" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.trgp.id
-    container_name   = "${var.stack}-container"
+    container_name   = "${var.stack}-${var.environment}-container"
     container_port   = var.container_port
+  }
+  tags = {
+    Name = "${var.stack}-${var.environment}-ecs-service"
+    Environment = "${var.environment}"
+    Billing = "${var.billing_id}"
   }
 
   
 }
 
 resource "aws_cloudwatch_log_group" "cw-lgrp" {
-  name = "ecs/${var.stack}"
+  name = "ecs/${var.stack}-${var.environment}"
 }
