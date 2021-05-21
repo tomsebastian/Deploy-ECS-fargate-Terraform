@@ -60,7 +60,7 @@ resource "aws_ecs_service" "service" {
   desired_count   = var.task_count
   launch_type     = "FARGATE"
   depends_on = [aws_alb_listener.alb-listener,]
-
+  
   network_configuration {
     security_groups = [aws_security_group.task-sg.id]
     subnets         = aws_subnet.public.*.id
@@ -72,13 +72,16 @@ resource "aws_ecs_service" "service" {
     container_name   = "${var.stack}-${var.environment}-container"
     container_port   = var.container_port
   }
+  
   tags = {
     Name = "${var.stack}-${var.environment}-ecs-service"
     Environment = "${var.environment}"
     Billing = "${var.billing_id}"
   }
 
-  
+  lifecycle {
+    ignore_changes = [task_definition]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "cw-lgrp" {

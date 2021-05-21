@@ -67,6 +67,8 @@ variable "cw_log_stream" {
 }
 
 
+#rds
+
 variable "db_instance_type" {
   description = "RDS instance type"
   default     = "db.r4.2xlarge"
